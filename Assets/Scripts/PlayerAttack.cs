@@ -1,45 +1,106 @@
+using System;
 using System.Collections;
 using System.Collections.Generic;
+using Unity.Mathematics;
 using UnityEngine;
 
 public class PlayerAttack : MonoBehaviour
 {
-    [SerializeField] GameObject attackArea;
-    [SerializeField] float timeToAttack = 0.2f;
-    float timeToAttackTimer = 0;
+    [Header("[Attack Settings]")]
+    [SerializeField] Transform playerPosition;
+    [SerializeField] Transform attackPosition;
+    [SerializeField] float attackRange = 1.2f;
+    [SerializeField] float upDownOffset = 0.5f;
+    [SerializeField] float timeToAttack = 0.4f;
+    [SerializeField] float attackSpeed = 0.1f;
+    float timer = 0;
 
-    [SerializeField] float attackSpeed = 0.5f;
-    float attackSpeedTimer = 0;
-    bool attacking = false;
+    public bool downStrike = false;
+
+    GameObject attackCollider;
+    bool _attacking = false;
+    bool _facingRight = true;
+    playerMovement playerMovement;
 
 
     void Start()
     {
-        attackArea.SetActive(false);
+        attackCollider = transform.GetChild(0).gameObject;
+        attackCollider.SetActive(false);
+        playerMovement = GetComponent<playerMovement>();
+        attackPosition.position = new Vector2(playerPosition.position.x - attackRange, playerPosition.position.y);
     }
 
-    // Update is called once per frame
+
     void Update()
     {
-        if (Input.GetButtonDown("Fire1") && attackSpeedTimer <= 0)
-        {
-            attackSpeedTimer = attackSpeed;
-            Attack();
-        }
-        else
-        {
-            attackSpeedTimer -= Time.deltaTime;
-        }
+        GetAttackDirection();
 
-        if (attacking)
+        if (!_attacking) // Delay for player to attack again
         {
-            timeToAttackTimer += Time.deltaTime;
+            timer += Time.deltaTime;
 
-            if (timeToAttackTimer >= timeToAttack)
+            if (timer >= timeToAttack)
             {
-                timeToAttackTimer = 0;
-                attacking = false;
-                attackArea.SetActive(attacking);
+                if (Input.GetAxisRaw("Fire1") > 0)
+                {
+                    timer = 0;
+                    Attack();
+                }
+            }
+        }
+
+        if (_attacking) // Timer for how long the attack area is active
+        {
+            timer += Time.deltaTime;
+
+            if (timer >= attackSpeed)
+            {
+                Debug.Log("Attack done");
+                timer = 0;
+                _attacking = false;
+                attackCollider.SetActive(_attacking);
+            }
+        }
+    }
+
+
+    void GetAttackDirection()
+    {
+        if (!_attacking) // Prevents palyer from switching direction while attacking
+        {
+            // Checks if player is looking up or down
+            if (Input.GetAxisRaw("Vertical") > Mathf.Epsilon)
+            {
+                attackPosition.SetPositionAndRotation(new Vector2(playerPosition.position.x, playerPosition.position.y + attackRange + upDownOffset), Quaternion.Euler(0, 0, 90));
+                downStrike = false;
+            }
+            else if (Input.GetAxisRaw("Vertical") < Mathf.Epsilon && !playerMovement.IsGrounded())
+            {
+                attackPosition.SetPositionAndRotation(new Vector2(playerPosition.position.x, playerPosition.position.y - attackRange - upDownOffset), Quaternion.Euler(0, 0, -90));
+                downStrike = true;
+            }
+
+            // Checks if player is facing right or left
+            if (Input.GetAxisRaw("Horizontal") > Mathf.Epsilon)
+            {
+                _facingRight = true;
+            }
+            else if (Input.GetAxisRaw("Horizontal") < -Mathf.Epsilon)
+            {
+                _facingRight = false;
+            }
+
+            //Attacks left or right if player is not looking up or down
+            if (_facingRight && Input.GetAxisRaw("Vertical") == 0)
+            {
+                attackPosition.SetPositionAndRotation(new Vector2(playerPosition.position.x + attackRange, playerPosition.position.y), Quaternion.Euler(0, 0, 0));
+                downStrike = false;
+            }
+            else if (!_facingRight && Input.GetAxisRaw("Vertical") == 0)
+            {
+                attackPosition.SetPositionAndRotation(new Vector2(playerPosition.position.x - attackRange, playerPosition.position.y), Quaternion.Euler(0, 0, 180));
+                downStrike = false;
             }
         }
     }
@@ -47,8 +108,15 @@ public class PlayerAttack : MonoBehaviour
 
     void Attack()
     {
-        attacking = true;
+        _attacking = true;
+        attackCollider.SetActive(_attacking);
+    }
 
-        attackArea.SetActive(attacking);
+
+    void OnDrawGizmos()
+    {
+        Gizmos.color = Color.red;
+
+        Gizmos.DrawSphere(new Vector3(attackPosition.position.x, attackPosition.position.y, 0), 0.5f);
     }
 }

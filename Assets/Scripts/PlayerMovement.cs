@@ -8,6 +8,7 @@ public class playerMovement : MonoBehaviour
     float xMovement;
 
     [Header("[Jump Settings]")]
+    
     [SerializeField] float jumpPower = 10;
     [SerializeField] float fallAcceleration = 0.3f;
 
@@ -84,5 +85,5 @@ public class playerMovement : MonoBehaviour
         }
     }
 
-    bool IsGrounded() => Physics2D.OverlapCircle(groundCheck.position, 0.2f, groundLayer);
+    public bool IsGrounded() => Physics2D.OverlapCircle(groundCheck.position, 0.2f, groundLayer);
 }
