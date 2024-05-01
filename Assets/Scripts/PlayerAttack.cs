@@ -15,7 +15,11 @@ public class PlayerAttack : MonoBehaviour
     [SerializeField] float attackSpeed = 0.1f;
     float timer = 0;
 
-    public bool downStrike = false;
+    [SerializeField] GameObject showAttack;
+    float showAttackXOffset;
+    float showAttackYOffset = 0.1f;
+
+    [NonSerialized] public bool downStrike = false;
 
     GameObject attackCollider;
     bool _attacking = false;
@@ -110,6 +114,9 @@ public class PlayerAttack : MonoBehaviour
     {
         _attacking = true;
         attackCollider.SetActive(_attacking);
+
+        // ! Only for show attack area | Use animation
+        // Instantiate(showAttack, new Vector3(attackPosition.position.x + showAttackXOffset, attackPosition.position.y + showAttackYOffset, attackPosition.position.z), attackPosition.localRotation);
     }
 
 

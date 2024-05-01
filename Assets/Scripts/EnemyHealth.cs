@@ -11,6 +11,8 @@ public class EnemyHealth : MonoBehaviour
     {
         health -= damage;
 
+        Debug.Log("I Got Called");
+
         if(health <= 0)
         {
             Destroy(gameObject);

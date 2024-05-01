@@ -19,7 +19,6 @@ public class AttackArea : MonoBehaviour
 
             if(playerAttack.downStrike)
             {
-                Debug.Log("Why!!!");
                 rb2D.velocity = new Vector2(0, 0);
                 rb2D.AddForce(Vector2.up * pogoForce);
             }

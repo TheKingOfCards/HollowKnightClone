@@ -18,8 +18,7 @@ public class PlayerHealth : MonoBehaviour
 
     void Update()
     {
-        if(_health <= 0) Debug.Log("Dead");
-        Heal();
+
     }
 
 
@@ -28,13 +27,9 @@ public class PlayerHealth : MonoBehaviour
 
     }
 
-
-    void OnTriggerEnter2D(Collider2D other)
+    public void TakeDamage()
     {
-        if(other.CompareTag("Enemy"))
-        {
-            _health--;
-            rb2d.AddForce(new Vector2(0, yForce), ForceMode2D.Impulse);
-        }
+        _health--;
+        rb2d.AddForce(new Vector2(0, yForce), ForceMode2D.Impulse);
     }
 }
