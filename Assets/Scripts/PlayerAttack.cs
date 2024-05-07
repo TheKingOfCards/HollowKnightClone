@@ -16,8 +16,8 @@ public class PlayerAttack : MonoBehaviour
     float timer = 0;
 
     [SerializeField] GameObject showAttack;
-    float showAttackXOffset;
-    float showAttackYOffset = 0.1f;
+    float showAttackXOffset = 0.65f;
+    float showAttackYOffset = 0.05f;
 
     [NonSerialized] public bool downStrike = false;
 
@@ -89,10 +89,12 @@ public class PlayerAttack : MonoBehaviour
             if (Input.GetAxisRaw("Horizontal") > Mathf.Epsilon)
             {
                 _facingRight = true;
+                showAttackXOffset *= -1;
             }
             else if (Input.GetAxisRaw("Horizontal") < -Mathf.Epsilon)
             {
                 _facingRight = false;
+                showAttackXOffset *= -1;
             }
 
             //Attacks left or right if player is not looking up or down
@@ -116,7 +118,7 @@ public class PlayerAttack : MonoBehaviour
         attackCollider.SetActive(_attacking);
 
         // ! Only for show attack area | Use animation
-        // Instantiate(showAttack, new Vector3(attackPosition.position.x + showAttackXOffset, attackPosition.position.y + showAttackYOffset, attackPosition.position.z), attackPosition.localRotation);
+        Instantiate(showAttack, new Vector3(attackPosition.position.x + showAttackXOffset, attackPosition.position.y + showAttackYOffset, attackPosition.position.z), attackPosition.localRotation);
     }
 
 

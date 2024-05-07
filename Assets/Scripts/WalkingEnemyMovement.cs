@@ -2,6 +2,7 @@ using System;
 using System.Collections;
 using System.Collections.Generic;
 using System.Threading;
+using Unity.VisualScripting;
 using UnityEngine;
 
 public class WalkingEnemyMovement : MonoBehaviour
@@ -21,8 +22,8 @@ public class WalkingEnemyMovement : MonoBehaviour
     [SerializeField] Transform playerPosition;
     [SerializeField] float chasingTime = 5;
     [SerializeField] float chasingSpeed = 4;
-    [SerializeField] Collider2D attackRange;
     float chasingTimer;
+
 
     int _direction = 1;
     Rigidbody2D _rb2D;
@@ -44,7 +45,7 @@ public class WalkingEnemyMovement : MonoBehaviour
         {
             Patrol();
 
-            if (CheckForPlayer()) 
+            if (CheckForPlayer())
             {
                 enemyState = EnemyState.chasing;
                 speed = chasingSpeed;
@@ -53,7 +54,7 @@ public class WalkingEnemyMovement : MonoBehaviour
         else if (enemyState == EnemyState.chasing)
         {
             if (!CheckForPlayer()) { chasingTimer -= Time.deltaTime; }
-            
+
 
             if (chasingTimer <= 0)
             {
@@ -61,12 +62,12 @@ public class WalkingEnemyMovement : MonoBehaviour
                 enemyState = EnemyState.patrol;
                 speed = patrolSpeed;
             }
-            
+
             Chasing();
         }
         else if (enemyState == EnemyState.attacking)
         {
-            
+
         }
     }
 
@@ -88,8 +89,7 @@ public class WalkingEnemyMovement : MonoBehaviour
 
     void Chasing()
     {
-        Debug.Log("Chasing");
-        if(playerPosition.position.x < transform.position.x)
+        if (playerPosition.position.x < transform.position.x)
         {
             _direction = -1;
             transform.localScale = new Vector3(_direction, 1, 1);
@@ -99,18 +99,14 @@ public class WalkingEnemyMovement : MonoBehaviour
             _direction = 1;
             transform.localScale = new Vector3(_direction, 1, 1);
         }
-
-
-        _rb2D.velocity = new Vector2(_direction * patrolSpeed, _rb2D.velocity.y);
-    }
-
-    // Checks if player enters collider and attacks if timer is higher than max
-    void OnTriggerEnter2D(Collider2D collider)
-    {
-        if(collider.GetComponent<PlayerHealth>() != null)
+        // Checks if enemy is at an edge and stops it if it is
+        if(ChangeDirection())
         {
-            _rb2D.velocity = Vector2.zero;
-            _rb2D.velocity = new Vector2(_direction * 10, _rb2D.velocity.y);
+            _rb2D.velocity = new Vector2(_direction * patrolSpeed, _rb2D.velocity.y);
+        }
+        else
+        {
+            _rb2D.velocity = new Vector2(0, _rb2D.velocity.y);
         }
     }
 
@@ -124,7 +120,6 @@ public class WalkingEnemyMovement : MonoBehaviour
 
         Gizmos.DrawRay(transform.position, new Vector2(_direction, 0) * rayDistance);
     }
-
 
 
     enum EnemyState
